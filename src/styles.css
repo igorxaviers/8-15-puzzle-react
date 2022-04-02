@@ -1,0 +1,71 @@
+:root{
+    /*body*/
+    --color-tertiary: #333333;
+    /*nav*/
+    --color-secondary: #232323;
+    /*main*/
+    --color-primary: #3D3D3D;
+    /*main-color*/
+    --green: #00E88F;
+}
+*{
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -1px;
+    outline: none !important;
+}
+body, input{
+    background-color: var(--color-tertiary) !important;
+}
+main{
+    background-color: var(--color-primary) ;
+}
+nav{
+    background-color: var(--color-secondary);
+}
+
+.h15{
+    height: 15vh;
+}
+.h85{
+    height: 85vh;
+}
+
+
+.button{
+    background-color: var(--green);
+    color: var(--color-secondary);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.button:hover{
+    background-color: rgba(var(--green), 0.9);
+}
+
+
+.board{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-gap: 20px;
+}
+
+.container{
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--color-secondary);
+}
+
+.piece{
+    text-align: center;
+    padding: 30px 10px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: var(--color-tertiary);
+}
