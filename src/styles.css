@@ -8,19 +8,35 @@
     /*main-color*/
     --green: #00E88F;
 }
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-secondary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--green);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
 *{
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: -1px;
     outline: none !important;
 }
-body, input{
+body{
     background-color: var(--color-tertiary) !important;
 }
 main{
     background-color: var(--color-primary) ;
 }
-nav{
-    background-color: var(--color-secondary);
+nav, input, select{
+    background-color: var(--color-secondary) !important;
+}
+label, option, select{
+    color: #fff !important;
 }
 
 .h15{
@@ -32,6 +48,9 @@ nav{
 
 
 .button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: var(--green);
     color: var(--color-secondary);
     border: none;
@@ -42,8 +61,15 @@ nav{
     font-weight: bold;
     transition: 0.3s;
 }
+.button svg {
+    margin-right: 15px;
+}
 .button:hover{
-    background-color: rgba(var(--green), 0.9);
+    opacity: 0.6;
+    transform: scale(1.05);
+}
+.button.x2{
+    transform: scale(1.4);
 }
 
 
@@ -68,4 +94,31 @@ nav{
     font-size: 1.5rem;
     font-weight: bold;
     background-color: var(--color-tertiary);
+}
+.history{
+    padding: 0px 10px;
+    height: 75vh;
+    overflow-y: scroll;
+}
+.history-item{
+    border-radius: 6px;
+    background-color: #232323;
+    padding: 10px;
+    margin: 10px 0;
+    transition: 200ms;
+}
+.history-item:hover{
+    background-color: #3D3D3D;
+}
+.history-item .board-container{
+    width: 180px;
+    margin: 0 !important;
+}
+.history-item .board{
+    gap: 6px;
+}
+.history-item .board .piece{
+    padding: 7px 2px;
+    border-radius: 3px;
+    font-size: 0.8rem;
 }
