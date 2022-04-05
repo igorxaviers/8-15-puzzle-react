@@ -40,10 +40,10 @@ label, option, select{
 }
 
 .h15{
-    height: 15vh;
+    height: 13vh;
 }
 .h85{
-    height: 85vh;
+    height: 87vh;
 }
 
 
@@ -96,29 +96,39 @@ label, option, select{
     background-color: var(--color-tertiary);
 }
 .history{
-    padding: 0px 10px;
-    height: 75vh;
+    padding: 10px;
+    height: 60vh;
     overflow-y: scroll;
+    overflow-x: hidden;
+    border-radius: 10px;
+    background-color: var(--color-secondary);
 }
 .history-item{
     border-radius: 6px;
-    background-color: #232323;
+    background-color: var(--color-primary);
     padding: 10px;
     margin: 10px 0;
     transition: 200ms;
 }
 .history-item:hover{
-    background-color: #3D3D3D;
+    background-color: var(--color-tertiary);
 }
 .history-item .board-container{
     width: 180px;
     margin: 0 !important;
 }
 .history-item .board{
-    gap: 6px;
+    gap: 4px;
 }
 .history-item .board .piece{
-    padding: 7px 2px;
-    border-radius: 3px;
-    font-size: 0.8rem;
+    padding: 5px 1px;
+    border-radius: 2px;
+    font-size: 0.75rem;
+}
+
+.bg-text{
+    background-color: var(--color-secondary);
+    padding: 8px 20px;
+    border-radius: 6px;
+    width: fit-content;
 }

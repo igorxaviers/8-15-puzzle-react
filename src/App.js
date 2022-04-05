@@ -13,6 +13,7 @@ class App extends React.Component {
       initialState:'123046758',
       finalState: '',
       currentState: '123046758',
+      lastState: [],
       finalStateValid: false,
       canSolve: false,
       history: [],
@@ -48,7 +49,8 @@ class App extends React.Component {
 
   sort = () => {
     this.setState({
-      history: []
+      history: [],
+      lastState: [],
     });
 
     var i = 0;
@@ -89,12 +91,10 @@ class App extends React.Component {
       let queue = new Queue();
       let achou = false;
       
-      queue.enqueue(this.state.currentState, 0);
+      queue.enqueue(this.state.currentState, 0, []);
       while(!queue.isEmpty() && !achou){
         let last = queue.dequeue();
         
-        let grandpa = this.state.history[this.state.history.length - 1];
-
         let oldHistory = this.state.history;
         oldHistory.push(last.state);
         this.setState({
@@ -102,15 +102,15 @@ class App extends React.Component {
         });
         
         if(last.state !== this.state.finalState) {
-          let children = this.generateChildren(last.state, grandpa);
+          let children = this.generateChildren(last.state, last.paths);
 
           // children = this.calculateFA(children);
           children = this.calculateFAManhattan(children);
 
           for(let child of children) {
-            if(!this.verifyHistory(child.state)) {
-              queue.enqueue(child.state, child.fa);
-            }
+            // if(!this.verifyHistory(child.state)) {
+            queue.enqueue(child.state, child.fa, child.paths);
+            // }
           }
         }
         else {
@@ -118,7 +118,8 @@ class App extends React.Component {
         }
 
         this.setState({
-          currentState: last.state
+          currentState: last.state,
+          lastState: last.paths
         });
       }
 
@@ -153,7 +154,8 @@ class App extends React.Component {
         }
 
         this.setState({
-          currentState: last.state
+          currentState: last.state,
+          lastState: last.paths
         });
       }
     }
@@ -180,9 +182,8 @@ class App extends React.Component {
   }
   
 
-  generateChildren(last, father){
+  generateChildren(last, paths){
       const positionEmpty = last.indexOf("0");
-  
       let possibleMoves = this.paths(positionEmpty); //[0,2,3]
 
       let children = [];
@@ -193,8 +194,9 @@ class App extends React.Component {
         aux = this.replaceAt(last, positionMove, "0");
         aux = this.replaceAt(aux, positionEmpty, piece); 
         
-        if(aux !== father) {
-          children.push({state: aux});
+        if(!paths.includes(aux)) {
+          let childPath = [...paths];
+          children.push({state: aux, paths: childPath});
         }
       }
     
@@ -318,7 +320,7 @@ class App extends React.Component {
           
 
           <div className="row h85 mx-0">
-            <main className="col-6">
+            <main className="col-5">
               <div className="col-8 mx-auto mt-3 d-flex justify-content-between flex-wrap">
                 <div className="row w-100 mb-5">
                   <div className="col-6">
@@ -364,6 +366,7 @@ class App extends React.Component {
                     <FaRandom/>Embaralhar</button>
                 </div>
               </div>
+              <p className="col-8 mx-auto text-white bg-text">Passos para embaralhar: {this.state.qtdShuffle}</p>
 
               <Board currentState={this.state.currentState}/>
 
@@ -384,24 +387,31 @@ class App extends React.Component {
               </div>
             </main>
 
-            <aside className=" col-6">
+            <aside className="col-7">
               <h2 className="text-white text-center my-3">Histórico</h2>
               <div className="text-white">
-                <p>Passos para embaralhar: {this.state.qtdShuffle}</p>
-                <p>Quantidade de passos: {this.state.history.length}</p>
-                <p>Tempo gasto: {this.state.timeSpend}</p>
+                <p className="bg-text">Nós visitados: {this.state.history.length}</p>
+                <p className="bg-text">Tempo gasto: {this.state.timeSpend}</p>
+                <p className="mt-4 fs-5">Caminho da solução ({this.state.lastState.length} passos):</p>
               </div>
-              <div className="history text-white">
-                {this.state.history.map((state, index) => {
-                  return (
-                    <div className="history-item" key={index}>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div className="history-item-state">{state}</div>
-                        <Board currentState={state}/>
+              <div className="history text-white row flex-wrap mx-0">
+                {
+                  this.state.lastState.map((state,index) => {
+                    return (
+                      <div className="col-6" key={index}>
+                        <div className="history-item">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <span className="small">Passo [{index+1}]</span>
+                              <div className="history-item-state mt-3 fw-bolder">{state}</div>
+                            </div>
+                            <Board currentState={state}/>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                }
               </div>
             </aside>
           </div>
