@@ -12,7 +12,7 @@ class Board extends React.Component {
 
         for (let i = 0; i < this.props.currentState.length; i++) {
             pieces.push(
-                <Piece key={i} number={this.props.currentState.charAt(i)}></Piece>
+                <Piece size={this.props.size} key={i} number={this.props.currentState.charAt(i)}></Piece>
             );
         }
 
@@ -23,7 +23,7 @@ class Board extends React.Component {
         
         let saida = 
         <div className="container col-8 mx-auto board-container">
-            <div className="board">
+            <div className={`board board-${this.props.size}`}>
                 {this.renderPieces()}
             </div>
         </div>

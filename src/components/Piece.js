@@ -6,7 +6,7 @@ class Piece extends React.Component {
     }
     render() { 
         let piece =
-            <div className={`piece col ${this.props.number === '0' ? 'bg-danger' :''} `}>
+            <div className={`piece ${this.props.number === '0' ? 'bg-danger' :''} `}>
                 {this.props.number}
             </div>
         return piece;

@@ -6,7 +6,7 @@ class Queue{
         this.states = [] ;
     }
     enqueue(state, priority, paths){
-        paths.push(state);
+        // paths.push(state);
         let pos = this.states.length - 1;
         while(pos > 0 && priority < this.states[pos].priority) {
             pos--; 
