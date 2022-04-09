@@ -58,7 +58,7 @@ class App extends React.Component {
     });
   }
 
-  sort = () => {
+  shuffle = () => {
     this.setState({
       history: [],
       lastState: []
@@ -77,36 +77,53 @@ class App extends React.Component {
       auxStr = this.replaceAt(this.state.currentState, positionMove, "0"); //'123046058'
       auxStr = this.replaceAt(auxStr, positionEmpty, piece); //'123046758'
 
+      console.log(auxStr);
+
       this.setState({ currentState: auxStr });
       i++;
       this.setState({ qtdShuffle: i });
-      if (i === 100) {
+      if (i === 101) {
         clearInterval(interval);
         this.setState({
           canSolve: true,
-          initialState: "816502734",
-          currentState: "816502734"
+          // initialState: "835416270",
+          // currentState: "835416270"
+          // initialState: "0123456789ABCDFE",
+          // currentState: "0123456789ABCDFE"
         });
       }
-    }, 40);
+      //meta:
+      // 123804765
+  
+      // fácil:
+      // 134862705
+  
+      // médio:
+      // 281043765
+  
+      // difícil:
+      // 281463075
+
+    }, 1);
   };
 
   solve = () => {
     debugger;
+
     let timeStart = new Date().getTime();
+    var queue = new Queue();
+    var last = null;
+    var achou = false;
+
     this.setState({
       history: []
     });
+
+    queue.enqueue(this.state.currentState, 0, [this.state.currentState]);
+
     if (this.state.searchSelected === "BestFirst") {
-      let queue = new Queue();
-      let achou = false;
-
-      queue.enqueue(this.state.currentState, 0, [this.state.currentState]);
       while (!queue.isEmpty() && !achou) {
-        let last = queue.dequeue();
-
-        // last.paths.push(last.state);
-
+        last = queue.dequeue();
         let oldHistory = this.state.history;
         oldHistory.push(last.state);
         this.setState({
@@ -116,33 +133,22 @@ class App extends React.Component {
         if (last.state !== this.state.finalState) {
           let children = this.generateChildren(last.state, last.paths);
 
-          if (this.state.size === 16) children = this.calculateFA(children);
-          else children = this.calculateFAManhattan(children);
-
+          children = this.calculateFAManhattan(children);
           for (let child of children) {
             queue.enqueue(child.state, child.fa, child.paths);
           }
         } else {
           achou = true;
         }
-
-        this.setState({
-          currentState: last.state,
-          lastState: last.paths
-        });
-        debugger;
       }
-    } else {
-      //A*
-      let queue = new Queue();
-      let achou = false;
-
-      queue.enqueue(this.state.currentState, 0, []);
+      this.setState({
+        currentState: last.state,
+        lastState: last.paths
+      });
+    } 
+    else { //Resolve o puzzlie usando A*
       while (!queue.isEmpty() && !achou) {
-        let last = queue.dequeue();
-
-        //last.paths.push(last.state);
-
+        last = queue.dequeue();
         let oldHistory = this.state.history;
         oldHistory.push(last.state);
         this.setState({
@@ -151,24 +157,21 @@ class App extends React.Component {
 
         if (last.state !== this.state.finalState) {
           let children = this.generateChildren(last.state, last.paths);
-
-          children = this.calculateFA(children); // + FC
-          //children = this.calculateFAManhattan(children);
-
+          children = this.calculateFAManhattan(children);
+          // children = this.calculateFA(children);
           for (let child of children) {
-            queue.enqueue(child.state, child.fa + 1, child.paths);
+            queue.enqueue(child.state, child.fa + (child.paths.length -1), child.paths);
           }
         } else {
           achou = true;
         }
-        console.log(last);
-
-        this.setState({
-          currentState: last.state,
-          lastState: last.paths
-        });
       }
+      this.setState({
+        currentState: last.state,
+        lastState: last.paths
+      });
     }
+    
     let timeEnd = new Date().getTime();
     let time = timeEnd - timeStart;
     let timeMin = Math.floor(time / 60000);
@@ -180,42 +183,12 @@ class App extends React.Component {
     });
   };
 
-  verifyHistory(state) {
-    for (let i = 0; i < this.state.history.length; i++) {
-      if (this.state.history[i] === state) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  isSolvable = () => {
-    let inversions = 0;
-    let state = this.state.currentState;
-    state = [
-      [state.charAt(0), state.charAt(1), state.charAt(2)],
-      [state.charAt(3), state.charAt(4), state.charAt(5)],
-      [state.charAt(6), state.charAt(7), state.charAt(8)]
-    ];
-    for (let i = 0; i < 3; i++) {
-      for (let j = i + 1; j < 3; j++) {
-        if (state[j][i] > 0 && state[j][i] > 0 && state[j][i] > state[i][j]) {
-          inversions++;
-        }
-      }
-    }
-
-    let solvable = inversions % 2 === 0;
-
-    alert(solvable);
-  };
-
   generateChildren(last, paths) {
+    let children = [];
     const positionEmpty = last.indexOf("0");
     let possibleMoves = this.paths(positionEmpty);
 
-    let children = [];
-    for (let pos of possibleMoves) {
+    for (let pos of possibleMoves) { 
       let positionMove = pos;
       const piece = last.charAt(positionMove);
       let auxStr;
@@ -285,11 +258,13 @@ class App extends React.Component {
 
     for (let i = 0; i < currentStateMatrix.length; i++) {
       for (let j = 0; j < currentStateMatrix[i].length; j++) {
-        const location = this.findNumber(
-          finalStateMatrix,
-          currentStateMatrix[i][j]
-        );
-        sum += Math.abs(i - location.i) + Math.abs(j - location.j);
+        if(currentStateMatrix[i][j] !== "0") {
+          let location = this.findNumber(
+            finalStateMatrix,
+            currentStateMatrix[i][j]
+          );
+          sum += Math.abs(i - location.i) + Math.abs(j - location.j);
+        }
       }
     }
     return sum;
@@ -350,11 +325,9 @@ class App extends React.Component {
   };
 
   paths = (index) => {
-    if (this.state.size === 9) return this.state.possiblePaths[index];
-    return this.state.possiblePaths15[index];
-  };
-
-  paths15 = (index) => {
+    if (this.state.size === 9){
+      return this.state.possiblePaths[index];
+    } 
     return this.state.possiblePaths15[index];
   };
 
@@ -402,17 +375,14 @@ class App extends React.Component {
 
         <div className="row h85 mx-0">
           <main className="col-6">
-            <div className="col-8 mx-auto mt-3 d-flex justify-content-between flex-wrap">
+            <div className="col-8 mx-auto mt-3 d-flex justify-content-center flex-wrap">
               <div className="row w-100 mb-5">
                 <div className="col-6">
                   <label className="mb-2">Algoritmo utilizado</label>
                   <select
                     className="form-select border-0"
                     value={this.state.searchSelected}
-                    onChange={(e) =>
-                      this.setState({ searchSelected: e.target.value })
-                    }
-                  >
+                    onChange={(e) => this.setState({ searchSelected: e.target.value })}>
                     <option value="BestFirst">Best-First</option>
                     <option value="A*">A*</option>
                   </select>
@@ -422,14 +392,22 @@ class App extends React.Component {
                   <select
                     className="form-select border-0"
                     value={this.state.size}
-                    onChange={(e) => this.changeSize(e)}
-                  >
+                    onChange={(e) => this.changeSize(e)}>
                     <option value="9">8 Puzzle</option>
                     <option value="16">15 Puzzle</option>
                   </select>
                 </div>
               </div>
+            </div>
+            <p className="col-8 mx-auto text-white bg-text">
+              Passos para embaralhar: {this.state.qtdShuffle}
+            </p>
 
+            <Board
+              size={this.state.size}
+              currentState={this.state.currentState}/>
+
+            <div className="col-8 mx-auto mt-3 d-flex justify-content-between flex-wrap">
               <label className="mb-2">Definir estado final</label>
               <div className="input-group mb-3 ps-0 pe-4">
                 <input
@@ -439,45 +417,22 @@ class App extends React.Component {
                   maxLength={this.state.size}
                   placeholder="Ex: 012345678"
                   value={this.state.finalState}
-                  onChange={(e) =>
-                    this.setState({ finalState: e.target.value })
-                  }
-                />
+                  onChange={(e) => this.setState({ finalState: e.target.value })}/>
                 <span
                   className="input-group-text button px-3 border-0"
-                  onClick={() => this.validateFinalState()}
-                >
+                  onClick={() => this.validateFinalState()}>
                   Definir EF
                 </span>
               </div>
-              <div className="d-flex justify-content-center align-items-center mt-3 w-100  mb-3">
-                <button
-                  className="button btn-large btn me-3"
-                  onClick={() => this.sort()}
-                  disabled={!this.state.finalStateValid}
-                >
-                  <FaRandom />
-                  Embaralhar
-                </button>
-                <button
-                  className="button"
-                  disabled={!this.state.finalStateValid}
-                  onClick={() => this.isSolvable()}
-                >
-                  Solvable?
-                </button>
-              </div>
             </div>
-            <p className="col-8 mx-auto text-white bg-text">
-              Passos para embaralhar: {this.state.qtdShuffle}
-            </p>
-
-            <Board
-              size={this.state.size}
-              currentState={this.state.currentState}
-            />
-
             <div className="d-flex justify-content-center mt-5">
+             <button
+                className="button btn-large btn me-5"
+                onClick={() => this.shuffle()}
+                disabled={!this.state.finalStateValid}>
+                <FaRandom />
+                Embaralhar
+              </button>
               <button
                 className="button btn-large btn x2"
                 disabled={!this.state.canSolve}
@@ -500,7 +455,7 @@ class App extends React.Component {
               </p>
             </div>
             <div className="history text-white row flex-wrap mx-0">
-              {this.state.lastState.map((state, index) => {
+              {this.state.lastState.length > 0 && this.state.lastState.map((state, index) => {
                 return (
                   <div className="col-6" key={index}>
                     <div className="history-item">

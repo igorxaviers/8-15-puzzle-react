@@ -60,6 +60,14 @@ label, option, select{
     font-size: 1.1rem;
     font-weight: bold;
     transition: 0.3s;
+    box-shadow: var(--green) 0px 18px 49px -16px;
+}
+.button[disabled]{
+    background-color: #309f75;
+    color: #000;
+    cursor: not-allowed;
+    box-shadow: none;
+
 }
 .button svg {
     margin-right: 15px;

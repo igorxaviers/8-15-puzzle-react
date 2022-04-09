@@ -14,4 +14,4 @@ class Piece extends React.Component {
 }
 
  
-export default Piece;
+export default React.memo(Piece);
