@@ -120,28 +120,79 @@ class App extends React.Component {
     }, 10);
   };
 
+  
+
+  
+
   Embaralhar = () => {
+    debugger;
+    var pos
+    let mat = this.generateMatrix(this.state.currentState);
+
     for (var i = 0; i < 100; i++) {
-      let pos = this.state.currentState.indexOf("0");
-      let possibleMoves = this.paths(pos);
+        for (pos = 0; pos < 9; pos++) {
+            if (mat[pos] === "0") {
+                this.movimenta(pos)
+            }
 
-      let positionMove = Math.floor(Math.random() * possibleMoves.length);
-      positionMove = possibleMoves[positionMove];
-      const piece = this.state.currentState.charAt(positionMove); //'12[3]046758'
-
-      let auxStr;
-      auxStr = this.replaceAt(this.state.currentState, positionMove, "0"); //'123046058'
-      auxStr = this.replaceAt(auxStr, pos, piece); //'123046758'
-
-      this.setState({
-        currentState: auxStr
-      });
-
+        }
     }
-    this.setState({
-      canSolve: true
-    });
+
+    // for (var i = 0; i < 100; i++) {
+    //   let pos = this.state.currentState.indexOf("0");
+    //   let possibleMoves = this.paths(pos);
+
+    //   let positionMove = Math.floor(Math.random() * possibleMoves.length);
+    //   positionMove = possibleMoves[positionMove];
+    //   const piece = this.state.currentState.charAt(positionMove); //'12[3]046758'
+
+    //   let auxStr;
+    //   auxStr = this.replaceAt(this.state.currentState, positionMove, "0"); //'123046058'
+    //   auxStr = this.replaceAt(auxStr, pos, piece); //'123046758'
+
+    //   this.setState({
+    //     currentState: auxStr
+    //   });
+
+    // }
+    // this.setState({
+    //   canSolve: true
+    // });
     //configInicial()
+  }
+
+  movimenta = (index) => {
+    var sort
+    var aux
+    var str = this.pode_ir(index);
+    var lista = str.split(",");
+    let estadoInicial = this.generateMatrix(this.state.currentState);
+    sort = Math.floor(Math.random() * lista.length)
+    aux = estadoInicial[index]
+    estadoInicial[index] = estadoInicial[lista[sort]]
+    estadoInicial[lista[sort]] = aux
+
+  }
+
+  pode_ir = (pos) => {
+    if (pos == 0)
+      return "1,3"
+    if (pos == 1)
+      return "0,2,4"
+    if (pos == 2)
+      return "1,5"
+    if (pos == 3)
+      return "0,4,6"
+    if (pos == 4)
+      return "1,3,5,7"
+    if (pos == 5)
+      return "2,4,8"
+    if (pos == 6)
+      return "3,7"
+    if (pos == 7)
+      return "4,6,8"
+    if (pos == 8)
+      return "5,7"
   }
 
   solve = () => {
