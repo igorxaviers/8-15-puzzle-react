@@ -63,33 +63,46 @@ class App extends React.Component {
       history: [],
       lastState: []
     });
+
     let possibleMoves = [];
     var i = 0;
+    let aux = this.state.currentState;
+
     const interval = setInterval(() => {
-      const positionEmpty = this.state.currentState.indexOf("0");
+      
+      const positionEmpty = aux.indexOf("0");
       possibleMoves = this.paths(positionEmpty);
 
       let positionMove = Math.floor(Math.random() * possibleMoves.length); //pegar posição aleatória do array acima
       positionMove = possibleMoves[positionMove]; //posição em que será colocada o valor "ZERO"
-      const piece = this.state.currentState.charAt(positionMove); //'12[3]046758'
+      const piece = aux.charAt(positionMove); //'12[3]046758'
 
       let auxStr;
-      auxStr = this.replaceAt(this.state.currentState, positionMove, "0"); //'123046058'
+      auxStr = this.replaceAt(aux, positionMove, "0"); //'123046058'
       auxStr = this.replaceAt(auxStr, positionEmpty, piece); //'123046758'
 
-      console.log(auxStr);
-
-      this.setState({ currentState: auxStr });
       i++;
-      this.setState({ qtdShuffle: i });
-      if (i === 101) {
+
+      console.log("-> " +aux);
+      aux = auxStr;
+      
+
+      if (i === 10) {
         clearInterval(interval);
         this.setState({
           canSolve: true,
-          // initialState: "835416270",
-          // currentState: "835416270"
+          qtdShuffle: i,
+          currentState: auxStr,
+          // initialState: "063254817",
+          // currentState: "063254817"
           // initialState: "0123456789ABCDFE",
           // currentState: "0123456789ABCDFE"
+        });
+      }
+      else {
+        this.setState({ 
+          qtdShuffle: i,
+          currentState: auxStr,
         });
       }
       //meta:
@@ -104,8 +117,32 @@ class App extends React.Component {
       // difícil:
       // 281463075
 
-    }, 1);
+    }, 10);
   };
+
+  Embaralhar = () => {
+    for (var i = 0; i < 100; i++) {
+      let pos = this.state.currentState.indexOf("0");
+      let possibleMoves = this.paths(pos);
+
+      let positionMove = Math.floor(Math.random() * possibleMoves.length);
+      positionMove = possibleMoves[positionMove];
+      const piece = this.state.currentState.charAt(positionMove); //'12[3]046758'
+
+      let auxStr;
+      auxStr = this.replaceAt(this.state.currentState, positionMove, "0"); //'123046058'
+      auxStr = this.replaceAt(auxStr, pos, piece); //'123046758'
+
+      this.setState({
+        currentState: auxStr
+      });
+
+    }
+    this.setState({
+      canSolve: true
+    });
+    //configInicial()
+  }
 
   solve = () => {
     debugger;
@@ -124,6 +161,7 @@ class App extends React.Component {
     if (this.state.searchSelected === "BestFirst") {
       while (!queue.isEmpty() && !achou) {
         last = queue.dequeue();
+
         let oldHistory = this.state.history;
         oldHistory.push(last.state);
         this.setState({
@@ -134,10 +172,12 @@ class App extends React.Component {
           let children = this.generateChildren(last.state, last.paths);
 
           children = this.calculateFAManhattan(children);
+
           for (let child of children) {
             queue.enqueue(child.state, child.fa, child.paths);
           }
-        } else {
+        } 
+        else {
           achou = true;
         }
       }
@@ -146,9 +186,10 @@ class App extends React.Component {
         lastState: last.paths
       });
     } 
-    else { //Resolve o puzzlie usando A*
+    else { //Resolve o puzzle usando A*
       while (!queue.isEmpty() && !achou) {
         last = queue.dequeue();
+
         let oldHistory = this.state.history;
         oldHistory.push(last.state);
         this.setState({
@@ -157,7 +198,9 @@ class App extends React.Component {
 
         if (last.state !== this.state.finalState) {
           let children = this.generateChildren(last.state, last.paths);
+
           children = this.calculateFAManhattan(children);
+
           // children = this.calculateFA(children);
           for (let child of children) {
             queue.enqueue(child.state, child.fa + (child.paths.length -1), child.paths);
@@ -177,6 +220,7 @@ class App extends React.Component {
     let timeMin = Math.floor(time / 60000);
     let timeSec = Math.floor((time % 60000) / 1000);
     let timeMil = Math.floor((time % 60000) % 1000);
+
     this.setState({
       timeSpend: timeMin + ":" + timeSec + ":" + timeMil,
       canSolve: false
@@ -204,27 +248,6 @@ class App extends React.Component {
 
     return children;
   }
-
-  // generateChildrenFC(last, priority, paths) {
-  //   const positionEmpty = last.indexOf("0");
-  //   let possibleMoves = this.paths(positionEmpty); //[0,2,3]
-
-  //   let children = [];
-  //   for (let pos of possibleMoves) {
-  //     let positionMove = pos;
-  //     const piece = last.charAt(positionMove);
-  //     let aux;
-  //     aux = this.replaceAt(last, positionMove, "0");
-  //     aux = this.replaceAt(aux, positionEmpty, piece);
-
-  //     if (!paths.includes(aux)) {
-  //       let childPath = [...paths];
-  //       children.push({ state: aux, priority: priority, paths: childPath });
-  //     }
-  //   }
-
-  //   return children;
-  // }
 
   calculateFA = (states) => {
     let fa;
@@ -301,7 +324,6 @@ class App extends React.Component {
         charPos++;
       }
     }
-
     return matrix;
   };
 
@@ -334,7 +356,7 @@ class App extends React.Component {
   validateFinalState = () => {
     let count = 0;
     let sequence = "012345678";
-    this.state.finalState.split("").map((piece, index) => {
+    this.state.finalState.split("").forEach((piece, index) => {
       if (sequence.includes(piece)) {
         count++;
         sequence = sequence.replace(piece, "#");
@@ -349,7 +371,8 @@ class App extends React.Component {
       let fe = document.getElementById("txFinalState");
       fe.classList.remove("is-invalid");
       fe.classList.add("is-valid");
-    } else {
+    } 
+    else {
       this.setState({
         finalStateValid: false,
         canSolve: false
@@ -368,16 +391,16 @@ class App extends React.Component {
           <div className="container-fluid d-flex align-items-center">
             <FaPuzzlePiece />
             <h1 className="navbar-brand mb-0 fs-1 text-center w-100 text-white ">
-              8 Puzzle
+              {this.state.size-1} Puzzle
             </h1>
           </div>
         </nav>
 
         <div className="row h85 mx-0">
-          <main className="col-6">
+          <main className="col-5">
             <div className="col-8 mx-auto mt-3 d-flex justify-content-center flex-wrap">
-              <div className="row w-100 mb-5">
-                <div className="col-6">
+              <div className="row w-100 mb-3">
+                <div className="col-6 ps-0">
                   <label className="mb-2">Algoritmo utilizado</label>
                   <select
                     className="form-select border-0"
@@ -387,7 +410,7 @@ class App extends React.Component {
                     <option value="A*">A*</option>
                   </select>
                 </div>
-                <div className="col-6">
+                <div className="col-6 pe-0">
                   <label className="mb-2">Tamanho do puzzle</label>
                   <select
                     className="form-select border-0"
@@ -398,7 +421,26 @@ class App extends React.Component {
                   </select>
                 </div>
               </div>
+              <div className="w-100">
+                <label className="mb-2">Definir estado final</label>
+                <div className="input-group mb-5 ps-0">
+                  <input
+                    type="text"
+                    id="txFinalState"
+                    className={`form-control border-0 text-white`}
+                    maxLength={this.state.size}
+                    placeholder="Ex: 012345678"
+                    value={this.state.finalState}
+                    onChange={(e) => this.setState({ finalState: e.target.value })}/>
+                  <span
+                    className="input-group-text button px-3 border-0"
+                    onClick={() => this.validateFinalState()}>
+                    Definir EF
+                  </span>
+                </div>
+              </div>
             </div>
+
             <p className="col-8 mx-auto text-white bg-text">
               Passos para embaralhar: {this.state.qtdShuffle}
             </p>
@@ -407,43 +449,25 @@ class App extends React.Component {
               size={this.state.size}
               currentState={this.state.currentState}/>
 
-            <div className="col-8 mx-auto mt-3 d-flex justify-content-between flex-wrap">
-              <label className="mb-2">Definir estado final</label>
-              <div className="input-group mb-3 ps-0 pe-4">
-                <input
-                  type="text"
-                  id="txFinalState"
-                  className={`form-control border-0 text-white`}
-                  maxLength={this.state.size}
-                  placeholder="Ex: 012345678"
-                  value={this.state.finalState}
-                  onChange={(e) => this.setState({ finalState: e.target.value })}/>
-                <span
-                  className="input-group-text button px-3 border-0"
-                  onClick={() => this.validateFinalState()}>
-                  Definir EF
-                </span>
-              </div>
-            </div>
+            
             <div className="d-flex justify-content-center mt-5">
              <button
-                className="button btn-large btn me-5"
+                className="button btn-large btn me-4"
                 onClick={() => this.shuffle()}
                 disabled={!this.state.finalStateValid}>
                 <FaRandom />
                 Embaralhar
               </button>
               <button
-                className="button btn-large btn x2"
+                className="button btn-large btn"
                 disabled={!this.state.canSolve}
-                onClick={() => this.solve()}
-              >
+                onClick={() => this.solve()}>
                 <FaCalculator /> Resolver
               </button>
             </div>
           </main>
 
-          <aside className="col-6">
+          <aside className="col-7">
             <h2 className="text-white text-center my-3">Histórico</h2>
             <div className="text-white">
               <p className="bg-text">
