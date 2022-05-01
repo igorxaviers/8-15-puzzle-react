@@ -3,6 +3,7 @@ class Queue{
     constructor(){
         this.states = [] ;
     }
+    
     enqueue(state, priority, paths){
         let contain = false;
         let newState = {state, priority, paths};

@@ -4,7 +4,6 @@ import Piece from './Piece';
 class Board extends React.Component {
     constructor(props) {
         super(props);
-
     }
 
     renderPieces = () => {
